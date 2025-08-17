@@ -1,23 +1,21 @@
 version: "3.9"
+
 services:
   chromadb:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:0.5.0
     container_name: chromadb
-    restart: unless-stopped
     ports:
       - "8000:8000"
-    environment:
-      - CHROMA_SERVER_HOST=0.0.0.0
-      - CHROMA_SERVER_HTTP_PORT=8000
     volumes:
-      - ./chroma_data:/chroma/.chroma/index
+      - ./chroma_db:/chroma_db
 
-  python-app:
-    build: ./app
-    container_name: support-bot
-    restart: unless-stopped
+  supportbot:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     depends_on:
       - chromadb
+    ports:
+      - "9000:9000"
     volumes:
-      - ./app:/app
-    command: ["python", "main.py"]
+      - ./chroma_db:/app/chroma_db  
